@@ -1,84 +1,107 @@
-﻿namespace Game110a
+﻿using System;
+
+namespace GuessNumber
 {
     internal class Program
     {
-        static void Main(string[] args)
+        int min = 0;
+        int max = 0;
+        int count = 0;
+        int countGame = 0;
+        int left = 0;
+        int right = 100;
+        int counter = 0;
+
+        public int? GetNumber()
         {
-            Console.WriteLine("Угадай число");
-            Console.WriteLine("Число от 1 до 100.");
-
-            int secretNumber = GenerateRandomNumber();
-            PlayGame(secretNumber);
-        }
-
-        /// <summary>
-        /// Генерирует случайное число от 1 до 100
-        /// </summary>
-        static int GenerateRandomNumber()
-        {
-            Random rnd = new Random();
-            return rnd.Next(1, 101); // 1 до 100 включительно
-        }
-
-        /// <summary>
-        /// Запрашивает у пользователя число и проверяет корректность ввода
-        /// </summary>
-        static int GetUserNumber()
-        {
-            int userNum = 0;
-
-            for (int attempt = 0; attempt < 3; attempt++)
+            int attempt = 0;
+            for (int i = 0; i < 3; i++)
             {
-                Console.Write("Введите число: ");
-                string input = Console.ReadLine();
-
-                if (!int.TryParse(input, out userNum))
+                if (int.TryParse(Console.ReadLine(), out attempt))
                 {
-                    Console.WriteLine("Ошибка! Нужно ввести число.");
-                    continue;
-                }
-
-                if (userNum < 1 || userNum > 100)
-                {
-                    Console.WriteLine("Ошибка! Число должно быть от 1 до 100.");
-                    continue;
-                }
-
-                return userNum;
-            }
-
-            Console.WriteLine("Превышено количество попыток ввода. Программа завершена.");
-            Environment.Exit(0);
-            return 0;
-        }
-
-        /// <summary>
-        /// Основной игровой цикл - сравнивает числа и дает подсказки
-        /// </summary>
-        static void PlayGame(int secretNumber)
-        {
-            int attempts = 0;
-
-            while (true)
-            {
-                attempts++;
-                int userGuess = GetUserNumber();
-
-                if (userGuess < secretNumber)
-                {
-                    Console.WriteLine("Загаданное число БОЛЬШЕ!");
-                }
-                else if (userGuess > secretNumber)
-                {
-                    Console.WriteLine("Загаданное число МЕНЬШЕ!");
+                    if (attempt >= left && attempt <= right)
+                        return attempt;
+                    else
+                        Console.WriteLine($"Input number from [{left}];{right}]");
                 }
                 else
                 {
-                    Console.WriteLine($"ПОБЕДА! Вы угадали число {secretNumber}!");
-                    Console.WriteLine($"Количество попыток: {attempts}");
+                    Console.WriteLine($"Input number from [{left}];{right}]");
+                }
+
+                if (i == 2)
+                {
+                    Console.WriteLine("You are stupid");
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        public bool CompareNumber(int attempt, int number)
+        {
+            if (number < attempt)
+            {
+                Console.WriteLine("Your number is greater");
+                return false;
+            }
+            else if (number > attempt)
+            {
+                Console.WriteLine("Your number is less");
+                return false;
+            }
+            else
+            {
+                Console.WriteLine("You are win!!!");
+                return true;
+            }
+        }
+
+        public void PlayGame(int number)
+        {
+            while (true)
+            {
+                Console.WriteLine($"Input number from [{left}];{right}]");
+                int? result = GetNumber();
+                if (result == null)
+                    return;
+
+                int attempt = result.Value;
+                counter++;
+                bool flag = CompareNumber(attempt, number);
+                if (flag == true)
+                {
+                    // Статистика игры
+                    if (min == 0 || min > counter) min = counter;
+                    max = max < counter ? counter : max;
+                    count += counter;
+                    countGame++;
                     break;
                 }
             }
+        }
+
+        static void Main(string[] args)
+        {
+            Random rnd = new Random();
+            Program program = new Program();
+
+            string name = "new Name";
+            Console.WriteLine(name);
+
+            char answer = 'Y';
+            do
+            {
+                int number = rnd.Next(program.left, program.right + 1);
+                program.counter = 0; // Сброс счетчика для новой игры
+                program.PlayGame(number);
+
+                Console.WriteLine("Do you want play again?");
+                answer = Convert.ToChar(Console.ReadLine());
+
+            } while (answer == 'Y' || answer == 'y');
+
+            Console.WriteLine($"min = {program.min} max = {program.max} avg = {(double)program.count / program.countGame}");
         }
     }
 }
